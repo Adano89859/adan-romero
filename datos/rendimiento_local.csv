@@ -1,0 +1,9 @@
+metrica,valor,unidad,fuente
+generacion,34,tok/s,inventario del proyecto
+lectura_prompt,64,tok/s,inventario del proyecto
+generacion_agente_min,21,tok/s,benchmark v1
+generacion_agente_max,37,tok/s,benchmark v1
+primera_llamada_7200_tokens_min,32,s,benchmark v1
+primera_llamada_7200_tokens_max,39,s,benchmark v1
+reparto_cpu,80,%,inventario del proyecto
+reparto_gpu,20,%,inventario del proyecto

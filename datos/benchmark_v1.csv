@@ -1,0 +1,11 @@
+modelo,donde,ronda,total_100,minutos,sobreafirmaciones
+nemotron-3-super,nube,1,100,11.8,0
+nemotron-3-super,nube,2,91,14.9,1
+laguna-s-2.1,pasarela_gratuita,1,100,15.4,0
+laguna-s-2.1,pasarela_gratuita,2,100,15.8,0
+step-3.7-flash,pasarela_gratuita,1,8,0.9,0
+step-3.7-flash,pasarela_gratuita,2,93,5.9,0
+gpt-oss:120b,nube,1,73.3,17.6,2
+gpt-oss:120b,nube,2,86.3,10.4,1
+hermes-qwen,local,1,8,4.6,0
+hermes-qwen,local,2,49.7,10.7,0

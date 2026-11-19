@@ -1,0 +1,6 @@
+modelo,familia,parametros,parametros_activos,cuantizacion,tamano_gb,contexto_max,contexto_configurado,tipo
+qwen3.6:35b-a3b,qwen35moe,35.5B,3B,Q4_K_M,22.62,262144,,chat
+hermes-qwen,qwen35moe,35.5B,3B,Q4_K_M,22.62,262144,65536,chat-agente
+qwen2.5:7b,qwen2,7.6B,7.6B,Q4_K_M,4.68,32768,,chat
+andy-4:micro-q8_0,qwen2,1.8B,1.8B,Q8_0,1.89,32768,8192,chat-agente-juego
+nomic-embed-text,nomic-bert,137M,137M,F16,0.27,2048,,embeddings
