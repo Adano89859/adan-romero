@@ -80,9 +80,7 @@ Los datos completos están en `datos/inventario.csv`.
 
 Por la **cuantización**: en vez de guardar cada peso con 16 bits, se guarda con unos 4-5. El tamaño aproximado de un modelo $M \approx N \cdot \frac{b}{8}$ bytes, donde $N$ es el número de parámetros y $b$ los bits por peso.
 
-$$
-M \approx 35,5 \cdot 10^9 \cdot \frac{5,1}{8} \approx 22,6 GB
-$$
+$$M \approx 35,5 \cdot 10^9 \cdot \frac{5,1}{8} \approx 22,6 GB$$
 
 `Q4_K_M` usa de media algo más de 4 bits porque guarda con más precisión las partes más delicadas del modelo.
 
@@ -137,9 +135,7 @@ El modelo no lee letras ni palabras: lee **tokens**, trozos de texto de tamaño 
 
 Cada token se convierte en un **vector**: una lista de números que representa su significado. En `nomic-embed.text` cada texto se convierte en un vector de 768 dimensiones. Dos textos parecidos dan vectores que apuntan en direcciones parecidas, y eso se mide con la similitud coseno:
 
-$$
-cos\theta = \frac{\vec{a}\cdot\vec{b}}{\left\| \vec{a} \right\|\left\| \vec{b} \right\|}
-$$
+$$cos\theta = \frac{\vec{a}\cdot\vec{b}}{\left\| \vec{a} \right\|\left\| \vec{b} \right\|}$$
 
 Vale **1** si apunta igual, **0** si no tiene relación y **-1** si son opuestos.
 
@@ -147,9 +143,7 @@ Vale **1** si apunta igual, **0** si no tiene relación y **-1** si son opuestos
 
 Es la pieza clave del **Transformer**. cada token \<\<mira>> a todos los anteriores para decidir cuáles importan para entenderlo:
 
-$$
-Attention(Q,K,V) = sfotmax(\frac{QK^T}{\sqrt{d_k}})V
-$$
+$$Attention(Q,K,V) = sfotmax(\frac{QK^T}{\sqrt{d_k}})V$$
 
 - $Q$(query): lo que busca el token actual.
 - $K$(key): lo que ofrece cada token anterior.
@@ -166,9 +160,7 @@ Arquitectura de un modelo GPT. Imagen de Wikimedia Commons (CC0).
 
 El modelo no \<\<escribe>>: calcula una puntuación $z_i$ para cada token posible y la convierte en probabilidad. La **temperatura** $T$ decide cuánto se arriesga:
 
-$$
-p_i = \frac{e^{\frac{z_i}{T}}}{\sum_j e^{\frac{z_j}{T}}}
-$$
+$$p_i = \frac{e^{\frac{z_i}{T}}}{\sum_j e^{\frac{z_j}{T}}}$$
 
 1. Con $T$ --> 0 casi siempre gana el token más probable: respuestas repetibles.
 2. Con $T$ = 1 se respeta la distribución tal cual.
@@ -178,9 +170,7 @@ $$
 
 `qwen3.6:35b-a3b` no usa sus 35.500 millones de parámetros en cada token. Tiene **256 expertos** y un router que elige solo **8** por token:
 
-$$
-Y = \sum_{i\in Top-8}g_i(x)E_i(x)
-$$
+$$Y = \sum_{i\in Top-8}g_i(x)E_i(x)$$
 donde $E_i$ es la salida del experto $i$ y $g_i$ el peso que le da el router. \
 Resultado: unos **3B de parámetros activos** por token, aunque en memoria tenga que estar el modelo entero.
 
@@ -206,9 +196,7 @@ flowchart TD
 
 Para no recalcular la atención de todo el texto en cada token, el modelo guarda las $K$ y $V$ de los tokens anteriores: la **caché KV**. Crece con el tamaño del contexto:
 
-$$
-KV = 2 \cdot n_{capas} \cdot n_{kv} \cdot d_{cabeza} \cdot n_{ctx} \cdot bytes
-$$
+$$KV = 2 \cdot n_{capas} \cdot n_{kv} \cdot d_{cabeza} \cdot n_{ctx} \cdot bytes$$
 Por eso ampliar `hermes-qwen` a un contexto de **65.536** tokens dispara la memoria necesaria, aunque el modelo sea el mismo.
 
 ## ⚖️ 7.Lectura vs escritura
@@ -248,16 +236,14 @@ pie
 
 Un modelo de 22,6 GB no cabe en 8 GB de VRAM, así que la mayor parte corre en la CPU. Lo esprable sería que fuese lentísimo. Pero gracias al MoE solo se leen los ~ **3B de parámetros activos** por token. Con la fórmula de la escritura, se puede despejar el ancho de banda que hace falta:
 
-$$
-\begin{aligned}
+$$\begin{aligned}
 v &\approx  \frac{BW}{N_{activos} \cdot \frac{b}{8}} \\
 BW &\approx v \cdot N_{activos} \cdot \frac{b}{8} \\
 &\approx 34 \cdot 3 \cdot 10^9 \cdot \frac{4,85}{8}bytes/s \approx 62 GB/s
-\end{aligned}
-$$
-Unos **62 GB/s** es justo lo que da una RAM moderna de soble canal. Es decir: el límite real no es la CPU, es la memoria. Un modelo *denso* del mismo tamaño tendría que leer los 22,6 GB enteros por token y no pasaría de $ \frac{62}{22,6} \approx 3$ tok/s.
+\end{aligned}$$
+Unos **62 GB/s** es justo lo que da una RAM moderna de soble canal. Es decir: el límite real no es la CPU, es la memoria. Un modelo *denso* del mismo tamaño tendría que leer los 22,6 GB enteros por token y no pasaría de $\frac{62}{22,6} \approx 3$ tok/s.
 
-> Importante: Hay una cifra que no cuadra. Leer 7.200 tokens a 64 tok/s llevaría $ t = \frac{n}{v} = \frac{7200}{64} \approx 112$s, pero la primera respuesta tardó solo 32-39s, es decir, unos 200 tok/s de lectura. Lo más probable es que las dos mediciones se hicieran en condiciones distintas. Queda como discrepancia abierta.
+> Importante: Hay una cifra que no cuadra. Leer 7.200 tokens a 64 tok/s llevaría $t = \frac{n}{v} = \frac{7200}{64} \approx 112$s, pero la primera respuesta tardó solo 32-39s, es decir, unos 200 tok/s de lectura. Lo más probable es que las dos mediciones se hicieran en condiciones distintas. Queda como discrepancia abierta.
 
 ## 🔧 Cómo medirlo tú
 
@@ -334,7 +320,7 @@ stateDiagram-v2
 | **hermes-qwen** | **Local** | 8 | 49,7 | 28,9 | 0 |
 
 >[!WARNING]
-  Una ronda "vacía" puntúa 8 por falsos positivos del corrector. La nota real de la segunda ronda del modelo local se estima en $\approx$42,7.
+  Una ronda "vacía" puntúa 8 por falsos positivos del corrector. La nota real de la segunda ronda del modelo local se estima en $\approx$42,7$.
 
 
 ### Lento pero honesto
@@ -372,9 +358,7 @@ Los datos están en `datos/benchmark_v1.csv` y `datos/benchmark_v2.csv`.
 ## ⚖️ ¿Cuánto me puedo fiar de una nota?
 El modelo local sacó **42,45** y **49,42** en sus dos rondas del v2. Su medida es $\bar{x} = \frac{43,45 + 49,42}{2} \approx 46,4$ y sy desviación típica:
 
-$$
-s = \sqrt{\frac{\sum^{n}_{i=1}(x_i - \bar{x})^2}{n - 1}} = \sqrt{\frac{2,985^2 + 2,985}{1}} \approx 4,2
-$$
+$$s = \sqrt{\frac{\sum^{n}_{i=1}(x_i - \bar{x})^2}{n - 1}} = \sqrt{\frac{2,985^2 + 2,985}{1}} \approx 4,2$$
 Con solo **2 rondas** y una variación de 6 puntos, diferencias pequeñas entre modelos no significan nada.
 
 [⬆️ Volver al índice](#Indice)
