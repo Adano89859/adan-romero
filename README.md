@@ -81,7 +81,7 @@ Los datos completos están en `datos/inventario.csv`.
 Por la **cuantización**: en vez de guardar cada peso con 16 bits, se guarda con unos 4-5. El tamaño aproximado de un modelo $M \approx N \cdot \frac{b}{8}$ bytes, donde $N$ es el número de parámetros y $b$ los bits por peso.
 
 $$
-    M \approx 35,5 \cdot 10^9 \cdot \frac{5,1}{8} \approx 22,6 GB
+M \approx 35,5 \cdot 10^9 \cdot \frac{5,1}{8} \approx 22,6 GB
 $$
 
 `Q4_K_M` usa de media algo más de 4 bits porque guarda con más precisión las partes más delicadas del modelo.
