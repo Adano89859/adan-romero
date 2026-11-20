@@ -23,7 +23,7 @@ Datos reales de un equipo de pruebas · septiembre - noviembre de 2026
 4. [🚀Rendimiento en el equipo de pruebas](#Rendimiento-en-el-equipo-de-pruebas)
 5. [♟️Benchmarks de agente](#Benchmarks-de-agente)
 6. [🖥️¿Y con otro hardware?](#Y-con-otro-hardware)
-7. [🔒Local vs nube: la privacidad](#Local-vs-nube:-la-privacidad)
+7. [🔒Local vs nube: la privacidad](#Local-vs-nube-la-privacidad)
 8. [🗒️Conclusiones](#Conclusiones)
 9. [⛲Fuentes](#Fuentes)
 ---
@@ -171,6 +171,7 @@ $$p_i = \frac{e^{\frac{z_i}{T}}}{\sum_j e^{\frac{z_j}{T}}}$$
 `qwen3.6:35b-a3b` no usa sus 35.500 millones de parámetros en cada token. Tiene **256 expertos** y un router que elige solo **8** por token:
 
 $$Y = \sum_{i\in Top-8}g_i(x)E_i(x)$$
+
 donde $E_i$ es la salida del experto $i$ y $g_i$ el peso que le da el router. \
 Resultado: unos **3B de parámetros activos** por token, aunque en memoria tenga que estar el modelo entero.
 
@@ -197,6 +198,7 @@ flowchart TD
 Para no recalcular la atención de todo el texto en cada token, el modelo guarda las $K$ y $V$ de los tokens anteriores: la **caché KV**. Crece con el tamaño del contexto:
 
 $$KV = 2 \cdot n_{capas} \cdot n_{kv} \cdot d_{cabeza} \cdot n_{ctx} \cdot bytes$$
+
 Por eso ampliar `hermes-qwen` a un contexto de **65.536** tokens dispara la memoria necesaria, aunque el modelo sea el mismo.
 
 ## ⚖️ 7.Lectura vs escritura
@@ -236,11 +238,14 @@ pie
 
 Un modelo de 22,6 GB no cabe en 8 GB de VRAM, así que la mayor parte corre en la CPU. Lo esprable sería que fuese lentísimo. Pero gracias al MoE solo se leen los ~ **3B de parámetros activos** por token. Con la fórmula de la escritura, se puede despejar el ancho de banda que hace falta:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 v &\approx  \frac{BW}{N_{activos} \cdot \frac{b}{8}} \\
 BW &\approx v \cdot N_{activos} \cdot \frac{b}{8} \\
-&\approx 34 \cdot 3 \cdot 10^9 \cdot \frac{4,85}{8}bytes/s \approx 62 GB/s
-\end{aligned}$$
+&\approx 34 \cdot 3 \cdot 10^9 \cdot \frac{4,85}{8}bytes/s \approx 62 GB/s \\
+\end{aligned}
+$$
+
 Unos **62 GB/s** es justo lo que da una RAM moderna de soble canal. Es decir: el límite real no es la CPU, es la memoria. Un modelo *denso* del mismo tamaño tendría que leer los 22,6 GB enteros por token y no pasaría de $\frac{62}{22,6} \approx 3$ tok/s.
 
 > Importante: Hay una cifra que no cuadra. Leer 7.200 tokens a 64 tok/s llevaría $t = \frac{n}{v} = \frac{7200}{64} \approx 112$s, pero la primera respuesta tardó solo 32-39s, es decir, unos 200 tok/s de lectura. Lo más probable es que las dos mediciones se hicieran en condiciones distintas. Queda como discrepancia abierta.
@@ -359,6 +364,7 @@ Los datos están en `datos/benchmark_v1.csv` y `datos/benchmark_v2.csv`.
 El modelo local sacó **42,45** y **49,42** en sus dos rondas del v2. Su medida es $\bar{x} = \frac{43,45 + 49,42}{2} \approx 46,4$ y sy desviación típica:
 
 $$s = \sqrt{\frac{\sum^{n}_{i=1}(x_i - \bar{x})^2}{n - 1}} = \sqrt{\frac{2,985^2 + 2,985}{1}} \approx 4,2$$
+
 Con solo **2 rondas** y una variación de 6 puntos, diferencias pequeñas entre modelos no significan nada.
 
 [⬆️ Volver al índice](#Indice)
